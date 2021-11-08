@@ -17,10 +17,10 @@ random.seed(10)
 
 directory_images = '/Users/roji/Documents/face_mask_detection_data/images'
 directory_annotations = '/Users/roji/Documents/face_mask_detection_data/annotations'
+directory_text_file = '/Users/roji/Documents/face_mask_detection_data/text'
 
-list_of_files_png = glob.glob(directory_images+str('/*.png'))
+list_of_files_jpg = glob.glob(directory_images+str('/*.jpg'))
 list_of_files_xml = glob.glob(directory_annotations+str('/*.xml'))
-list_of_files_jpg = []
 data_size = len(list_of_files_xml)
 
 train_size = int(0.9*data_size)
@@ -28,24 +28,31 @@ train_size = int(0.9*data_size)
 
 
 
-for item in list_of_files_png:
-    img = Image.open(item)
-    rgb_im = img.convert('RGB')
-    save_location = item[:-4]+str('.jpg')
-    list_of_files_jpg.append(save_location)
-    rgb_im.save(save_location)
+# for item in list_of_files_png:
+#     img = Image.open(item)
+#     rgb_im = img.convert('RGB')
+#     save_location = item[:-4]+str('.jpg')
+#     list_of_files_jpg.append(save_location)
+#     rgb_im.save(save_location)
     
 set_index = np.arange(len(list_of_files_xml))
 random.shuffle(set_index)
 train_index = set_index[:train_size]
 validation_index = set_index[train_size:]  
-# print(validation_index)  
-# print(len(list_of_files_jpg))
 train_list_jpg = [list_of_files_jpg[i] for i in train_index]
 train_list_xml = [list_of_files_xml[i] for i in train_index]
 validation_list_jpg=[list_of_files_jpg[j] for j in validation_index]
 validation_list_xml = [list_of_files_xml[j]  for j in validation_index]
+train_name = directory_text_file + str('/train.txt')
+valid_name = directory_text_file + str('/valid.txt')
 
+with open(train_name, 'w')  as txt_file :
+    for item in train_list_jpg:
+        txt_file.write(''.join(item) + '\n')
+
+with open(valid_name, 'w')  as txt_file :
+    for item in validation_list_jpg:
+        txt_file.write(''.join(item) + '\n')
 
     
     
@@ -112,7 +119,6 @@ def change_format_bbox(df,dimensions):
 def train_validation_image(train_valid_list_jpg,category):
     
     for item in train_valid_list_jpg:
-        print(len(train_valid_list_jpg))
         if category == 'train':
             directory = '/Users/roji/Documents/face_mask_detection_data/train_image/'
         else:
