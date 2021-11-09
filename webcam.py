@@ -66,22 +66,25 @@ from matplotlib import pyplot as plt
 #     wandb.log({"img":[box_image]})
 #     break
 model= torch.hub.load('ultralytics/yolov3','custom',path = 'best.pt')
-
+cap = cv2.VideoCapture(0)
+time.sleep(1)
 colors = np.random.uniform(0,255,size = (3,3))
 classes = {0:colors[0],1:colors[1],2:colors[2]}
 classes_name = {0:"with_mask",1:"without_mask",2:"mask_weared_incorrectly"}
-raw_image = plt.imread('/Users/roji/Documents/face_mask_detection_data/train_image/maksssksksss5.jpg')
-output = model(raw_image)
-data_frame = output.pandas().xyxy[0]
-print(data_frame)
-for i , row in data_frame.iterrows():
-    confidence = row.confidence
-    idx = row["class"]
-    (startX , startY , endX, endY) = int(row.xmin) , int(row.ymin) , int(row.xmax) , int(row.ymax)
-    label = "{}: {:.2f}%".format(classes_name[idx], row.confidence*100)
-    print("[info] {}".format(label))
-    cv2.rectangle(raw_image,(startX,startY),(endX,endY),classes[idx],2)
-    y = startY -15 if startY -15 > 15 else startY + 15
-    cv2.putText(raw_image,label,(startX , y),cv2.FONT_HERSHEY_SIMPLEX,0.5,classes[idx],2)
-cv2.imshow("Output",raw_image)
-cv2.waitKey()
+while True:
+
+    _ , raw_image = cap.read()
+    output = model(raw_image)
+    data_frame = output.pandas().xyxy[0]
+    print(data_frame)
+    for i , row in data_frame.iterrows():
+        confidence = row.confidence
+        idx = row["class"]
+        (startX , startY , endX, endY) = int(row.xmin) , int(row.ymin) , int(row.xmax) , int(row.ymax)
+        label = "{}: {:.2f}%".format(classes_name[idx], row.confidence*100)
+        print("[info] {}".format(label))
+        cv2.rectangle(raw_image,(startX,startY),(endX,endY),classes[idx],2)
+        y = startY -15 if startY -15 > 15 else startY + 15
+        cv2.putText(raw_image,label,(startX , y),cv2.FONT_HERSHEY_SIMPLEX,0.5,classes[idx],2)
+    cv2.imshow("Output",raw_image)
+    cv2.waitKey()
